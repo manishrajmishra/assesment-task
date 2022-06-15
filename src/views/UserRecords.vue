@@ -88,10 +88,10 @@
                       </v-date-picker>
                     </v-dialog>
                   </v-col>
-                  <v-col cols="5"
+                  <v-col cols="3"
                     ><v-subheader>Date of Leaving</v-subheader></v-col
                   >
-                  <v-col cols="7">
+                  <v-col cols="5">
                     <v-dialog
                       ref="dialog"
                       v-model="modalTwo"
@@ -124,6 +124,22 @@
                         </v-btn>
                       </v-date-picker>
                     </v-dialog>
+                  </v-col>
+                  <v-col cols="4"
+                    ><v-checkbox
+                      v-model="checkbox"
+                      label="Still Working"
+                    ></v-checkbox
+                  ></v-col>
+                  <v-col cols="4"
+                    ><v-subheader>Upload Image</v-subheader></v-col
+                  >
+                  <v-col cols="8">
+                    <v-file-input
+                      hide-input
+                      truncate-length="50"
+                    ></v-file-input>
+                    Choose File
                   </v-col>
                 </v-row>
               </v-container>
@@ -183,6 +199,7 @@ export default {
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
       .substr(0, 10),
+    checkbox: false,
   }),
 
   watch: {
@@ -199,7 +216,6 @@ export default {
   },
 
   methods: {
-
     deleteItem(item) {
       this.editedIndex = this.tableData.indexOf(item);
       this.editedItem = Object.assign({}, item);
