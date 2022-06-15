@@ -6,6 +6,15 @@ Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/',
+    name: 'userrecords',
+    component: UserRecords,
+    props: true,
+    meta: {
+        requiresVisitor: true,
+    }
+  },
+  {
     path: '/userrecords',
     name: 'userrecords',
     component: UserRecords,

@@ -1,128 +1,240 @@
 <template>
-  <v-card width="600" class="mx-auto mt-15 card-color" elevation="2">
-    <v-card-title>
-      <div class="login-text-line">
-        <span class="display-1 login-text">
-          Login
-        </span>
-      </div>
-    </v-card-title>
-    <v-card-text>
-      <ValidationObserver ref="loginForm" v-slot="{ handleSubmit }">
-        <v-form @submit.stop.prevent="handleSubmit(login)">
-          <ValidationProvider
-            v-slot="{ errors }"
-            name="User ID"
-            :rules="{ required: true }"
-          >
-            <v-text-field
-              outlined
-              label="User ID"
-              :error-messages="errors"
-              v-model="email"
-            ></v-text-field>
-          </ValidationProvider>
-          <ValidationProvider
-            v-slot="{ errors }"
-            name="Password"
-            :rules="{
-              required: true,
-              min: 8,
-              regex: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/,
-            }"
-          >
-            <v-text-field
-              outlined
-              :type="showPassword ? 'text' : 'password'"
-              label="Password"
-              v-model="password"
-              hint="Password should be of atleast 8 characters and requires atleast one : uppercase letter, lowercase letter, number, special character."
-              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="showPassword = !showPassword"
-              :error-messages="errors"
-            />
-          </ValidationProvider>
-          <span class="forget-password">Forget Password?</span>
-          <div class="sign-up-account">
-            <span class="not-account">Don't have an account?</span>
-            <span class="sign-up">SIGN UP</span>
-          </div>
-          <v-card-actions>
-            <v-btn x-large type="submit" color="default" class="sign-in">
-              SIGN IN
+  <v-data-table
+    :headers="headers"
+    :items="tableData"
+    class="elevation-5 pa-5 ma-15"
+    hide-default-footer
+  >
+    <template v-slot:item.avatar="{ item }">
+      <v-avatar color="indigo" class="ma-1">
+        <v-icon dark>
+          {{ item.avatar }}
+        </v-icon>
+      </v-avatar>
+    </template>
+    <template v-slot:top>
+      <v-toolbar flat>
+        <v-toolbar-title>User Records</v-toolbar-title>
+        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-spacer></v-spacer>
+        <v-dialog v-model="dialog" max-width="600px">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+              Add New
             </v-btn>
-          </v-card-actions>
-        </v-form>
-      </ValidationObserver>
-    </v-card-text>
-  </v-card>
-</template>
+          </template>
+          <v-card>
+            <v-card-title class="justify-center">
+              <span class="text-h5">Add New Record</span>
+            </v-card-title>
 
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="4">
+                    <v-subheader>Email</v-subheader>
+                  </v-col>
+                  <v-col cols="8">
+                    <v-text-field
+                      v-model="editedItem.email"
+                      label="Email"
+                      outlined
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-subheader>Full Name</v-subheader>
+                  </v-col>
+                  <v-col cols="8">
+                    <v-text-field
+                      v-model="editedItem.name"
+                      label="Full Name"
+                      outlined
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="5"
+                    ><v-subheader>Date of Joining</v-subheader></v-col
+                  >
+                  <v-col cols="7">
+                    <v-dialog
+                      ref="dialog"
+                      v-model="modal"
+                      :return-value.sync="date"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="date"
+                          label="Date of Joining"
+                          append-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          outlined
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="date" scrollable>
+                        <v-spacer></v-spacer>
+                        <v-btn text color="primary" @click="modal = false">
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialog.save(date)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                    </v-dialog>
+                  </v-col>
+                  <v-col cols="5"
+                    ><v-subheader>Date of Leaving</v-subheader></v-col
+                  >
+                  <v-col cols="7">
+                    <v-dialog
+                      ref="dialog"
+                      v-model="modalTwo"
+                      :return-value.sync="date"
+                      persistent
+                      width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="date"
+                          label="Date of Leaving"
+                          append-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          outlined
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="date" scrollable>
+                        <v-spacer></v-spacer>
+                        <v-btn text color="primary" @click="modal = false">
+                          Cancel
+                        </v-btn>
+                        <v-btn
+                          text
+                          color="primary"
+                          @click="$refs.dialog.save(date)"
+                        >
+                          OK
+                        </v-btn>
+                      </v-date-picker>
+                    </v-dialog>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" dark text @click="save">
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5"
+              >Are you sure you want to delete this item?</v-card-title
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete"
+                >Cancel</v-btn
+              >
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                >OK</v-btn
+              >
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
+    </template>
+    <template v-slot:item.actions="{ item }">
+      <v-icon small @click="deleteItem(item)">
+        mdi-close-thick
+      </v-icon>
+    </template>
+  </v-data-table>
+</template>
 <script>
+import { headers, data } from "../utils/tableHeaders.js";
 export default {
-  name: "UserRecods",
-  data() {
-    return {
+  data: () => ({
+    dialog: false,
+    dialogDelete: false,
+    headers,
+    tableData: [],
+    data,
+    editedItem: {
+      name: "",
       email: "",
-      password: "",
-      showPassword: false,
-      loading: false,
-      errors: "",
-    };
+      avatar: "",
+      experience: "",
+    },
+    modal: false,
+    modalTwo: false,
+    date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+      .toISOString()
+      .substr(0, 10),
+  }),
+
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
   },
+
+  created() {
+    this.tableData = data;
+  },
+
   methods: {
-    login() {
-      this.errors = "";
-      const notification = {
-        type: "success",
-        message: "LoggedIN Successfully",
-      };
-      this.$store.dispatch("add", notification);
+
+    deleteItem(item) {
+      this.editedIndex = this.tableData.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogDelete = true;
+    },
+
+    deleteItemConfirm() {
+      this.tableData.splice(this.editedIndex, 1);
+      this.closeDelete();
+    },
+
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.tableData[this.editedIndex], this.editedItem);
+      } else {
+        this.tableData.push(this.editedItem);
+      }
+      this.close();
     },
   },
 };
 </script>
-
-<style lang="scss" scoped>
-span {
-  &.login-text {
-    color: white;
-    font-size: 25px;
-    border-bottom: 2px solid #fb8c00;
-  }
-}
-span {
-  &.forget-password {
-    font-weight: 500;
-    color: white;
-    margin-left: 12px;
-  }
-}
-div {
-  &.sign-up-account {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-  }
-  span {
-    &.sign-up {
-      font-weight: 500;
-      color: white;
-      margin-right: 8px;
-    }
-  }
-  span {
-    &.not-account {
-      color: white;
-      margin-left: 12px;
-    }
-  }
-}
-.sign-in {
-  color: black;
-  width: 560px;
-}
-.card-color {
-  background-color: #10578f !important;
-}
-</style>
