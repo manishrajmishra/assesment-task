@@ -1,4 +1,4 @@
-# Login_Screen_Task
+# Assesment_Task
 
 ## Project setup
 ```
@@ -18,6 +18,11 @@ npm run build
 ### Lints and fixes files
 ```
 npm run lint
+```
+
+### Run the Unit Test Case
+```
+npm run test:unit -u
 ```
 
 ### Customize configuration
